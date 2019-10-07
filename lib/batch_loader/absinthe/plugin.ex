@@ -1,9 +1,9 @@
 defmodule BatchLoader.Absinthe.Plugin do
-  @behaviour Absinthe.Plugin
-
   @moduledoc """
-  Absinthe Plugin which re-runs the delayed resolution, executes batching and cleans the CacheStore.
+  Absinthe Plugin which re-runs the delayed resolution and executes batching.
   """
+
+  @behaviour Absinthe.Plugin
 
   alias BatchLoader.Cache
   alias BatchLoader.CacheStore

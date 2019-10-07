@@ -6,7 +6,7 @@ defmodule BatchLoader.CacheStoreTest do
 
   describe "fetch_cache/2" do
     test "fetches the existing cache value from the store based on the BatchLoader struct" do
-      batch_loader = %BatchLoader{batch: fn -> nil end}
+      batch_loader = %BatchLoader{item: 1, batch: fn -> nil end}
       cache = Cache.new(batch_loader)
       store = %{BatchLoader => %{BatchLoader.cache_key(batch_loader) => cache}}
 
@@ -16,7 +16,7 @@ defmodule BatchLoader.CacheStoreTest do
     end
 
     test "returns a new cache if it doesn't exist in the store" do
-      batch_loader = %BatchLoader{batch: fn -> nil end}
+      batch_loader = %BatchLoader{item: 1, batch: fn -> nil end}
       store = %{}
 
       result = CacheStore.fetch_cache(store, batch_loader)
@@ -27,13 +27,16 @@ defmodule BatchLoader.CacheStoreTest do
 
   describe "clean/1" do
     test "removes items for batching from the store" do
-      batch_loader1 = %BatchLoader{batch: fn -> nil end}
+      batch_loader1 = %BatchLoader{item: 1, batch: fn -> nil end}
       cache_key1 = BatchLoader.cache_key(batch_loader1)
-      batch_loader2 = %BatchLoader{batch: fn -> nil end}
+      batch_loader2 = %BatchLoader{item: 2, batch: fn -> nil end}
       cache_key2 = BatchLoader.cache_key(batch_loader2)
 
       store = %{
-        BatchLoader => %{cache_key1 => %Cache{items: [1]}, cache_key2 => %Cache{items: [2]}}
+        BatchLoader => %{
+          cache_key1 => %Cache{items: [1], batch: batch_loader1.batch},
+          cache_key2 => %Cache{items: [2], batch: batch_loader2.batch}
+        }
       }
 
       result = CacheStore.clean(store)

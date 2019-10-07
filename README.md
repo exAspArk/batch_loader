@@ -19,7 +19,7 @@ Here are similar implementations in other programming languages:
 
 Use `BatchLoader` in your resolve function:
 
-```ex
+```elixir
 defmodule MyApp.PostType do
   use Absinthe.Schema.Notation
 
@@ -40,7 +40,7 @@ end
 
 Add `BatchLoader` plugin to your Absinthe schema:
 
-```ex
+```elixir
 defmodule MyApp.Schema do
   use Absinthe.Schema
   import_types MyApp.PostType
@@ -57,7 +57,7 @@ end
 
 Add `batch_loader` to your list of dependencies in `mix.exs`:
 
-```ex
+```elixir
 def deps do
   [
     {:batch_loader, "~> 0.1.0"}

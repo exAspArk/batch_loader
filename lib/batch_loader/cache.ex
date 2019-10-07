@@ -1,12 +1,13 @@
 defmodule BatchLoader.Cache do
-  defstruct [:batch, :items, :value_by_item]
-
   @moduledoc """
   A struct which is used like cache per batch function.
   """
 
+  @enforce_keys [:batch]
+  defstruct [:batch, items: [], value_by_item: %{}]
+
   def new(batch_loader) do
-    %__MODULE__{items: [], value_by_item: %{}, batch: batch_loader.batch}
+    %__MODULE__{batch: batch_loader.batch}
   end
 
   def batched?(cache) do

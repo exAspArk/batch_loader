@@ -26,9 +26,8 @@ defmodule BatchLoader.Absinthe.MiddlewareTest do
     end
 
     test "reads the batched value from the cache" do
-      batch = fn -> nil end
-      batch_loader = %BatchLoader{item: 1, batch: batch}
-      cache = %Cache{value_by_item: %{1 => 2}, batch: batch}
+      batch_loader = %BatchLoader{item: 1, batch: fn -> nil end}
+      cache = %Cache{value_by_item: %{1 => 2}, batch: batch_loader.batch}
       res = %{state: :suspended, acc: CacheStore.upsert_cache(%{}, cache)}
 
       result = Middleware.call(res, batch_loader, DummyResolution)

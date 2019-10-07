@@ -3,7 +3,7 @@ defmodule BatchLoaderTest do
 
   describe "cache_key/1" do
     test "generates a cache key based on the batch function" do
-      batch_loader = %BatchLoader{batch: fn -> nil end}
+      batch_loader = %BatchLoader{item: 1, batch: fn -> nil end}
 
       result = BatchLoader.cache_key(batch_loader)
 

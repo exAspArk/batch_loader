@@ -1,9 +1,9 @@
 defmodule BatchLoader.Absinthe.Middleware do
-  @behaviour Absinthe.Middleware
-
   @moduledoc """
   Absinthe Middleware which delays the resolution and then gets the result from CacheStore.
   """
+
+  @behaviour Absinthe.Middleware
 
   alias BatchLoader.Cache
   alias BatchLoader.CacheStore

@@ -1,9 +1,9 @@
 defmodule BatchLoader.CacheStore do
-  alias BatchLoader.Cache
-
   @moduledoc """
   A module which operates on the cache store (map).
   """
+
+  alias BatchLoader.Cache
 
   def fetch_cache(store, batch_loader) do
     cache_key = BatchLoader.cache_key(batch_loader)
