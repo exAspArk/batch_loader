@@ -28,7 +28,7 @@ defmodule BatchLoader.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:absinthe, "~> 1.4"},
+      {:absinthe, "~> 1.5.0-beta"},
       {:ex_doc, "~> 0.21", only: :dev, runtime: false},
       {:excoveralls, "~> 0.11", only: :test},
       {:credo, "~> 1.1", only: [:dev, :test], runtime: false}
