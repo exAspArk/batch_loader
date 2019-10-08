@@ -6,8 +6,9 @@ This package provides a generic lazy batching mechanism to avoid N+1 DB queries,
 
 * [Highlights](#highlights)
 * [Usage](#usage)
-  * [With Absinthe (GraphQL)](#with-absinthe-graphql)
-  * [With Ecto (DB)](#with-ecto-db)
+  * [Ecto Resolve Association](#ecto-resolve-association)
+  * [Ecto Preload Association](#ecto-preload-association)
+  * [DIY Batching](#diy-batching)
   * [Customization](#customization)
 * [Installation](#installation)
 * [Testing](#testing)
@@ -21,7 +22,7 @@ This package provides a generic lazy batching mechanism to avoid N+1 DB queries,
 
 ## Usage
 
-Let's imagine we have a `Post` GraphQL type:
+Let's imagine that we have a `Post` GraphQL type defined with [Absinthe](https://github.com/absinthe-graphql/absinthe):
 
 ```elixir
 defmodule MyApp.PostType do
@@ -41,7 +42,7 @@ defmodule MyApp.PostType do
 end
 ```
 
-This produces N+1 DB requests if we send this GraphQL request:
+This will produce N+1 DB requests if we send this GraphQL request:
 
 ```gql
 query {
@@ -54,39 +55,25 @@ query {
 }
 ```
 
-### With Absinthe (GraphQL)
+### Ecto Resolve Association
 
-We can get rid of the N+1 requests by loading all `Users` for all `Posts` at once in.
-All we have to do is to use `BatchLoader.Absinthe` in the `resolve` function:
-
-```elixir
-field :user, :user_type do
-  resolve(fn post, _, _ ->
-    BatchLoader.Absinthe.for(post.user_id, &resolved_users_by_user_ids/1)
-  end)
-end
-
-def resolved_users_by_user_ids(user_ids) do
-  Repo.all(from u in User, where: u.id in ^user_ids) # load all users at once (DB, HTTP, etc.)
-  |> Enum.map(fn user -> {user.id, {:ok, user}} end) # return "{user.id, result}" tuples (where user.id == post.user_id)
-end
-```
-
-Alternatively, you can simply inline the batch function:
+We can get rid of the N+1 DB requests by loading all `Users` for all `Posts` at once in.
+All we have to do is to use `resolve_assoc` function by passing the Ecto associations name:
 
 ```elixir
-field :user, :user_type do
-  resolve(fn post, _, _ ->
-    BatchLoader.Absinthe.for(post.user_id, fn user_ids ->
-      Repo.all(from u in User, where: u.id in ^user_ids)
-      |> Enum.map(fn user -> {user.id, {:ok, user}} end)
-    end)
-  end)
-end
+import BatchLoader.Absinthe, only: [resolve_assoc: 1]
+
+field :user, :user_type, resolve: resolve_assoc(:user)
 ```
 
-Finally, add `BatchLoader.Absinthe.Plugin` plugin to the Absinthe schema.
-This will allow to lazily collect information about all users which need to be loaded and then load them all at once:
+Set the default `repo` in your `config.exs` file:
+
+```elixir
+config :batch_loader, :default_repo, MyApp.Repo
+```
+
+And finally, add `BatchLoader.Absinthe.Plugin` plugin to the GraphQL schema.
+This will allow to lazily collect information about all users which need to be loaded and then batch them all together:
 
 ```elixir
 defmodule MyApp.Schema do
@@ -99,28 +86,47 @@ defmodule MyApp.Schema do
 end
 ```
 
-### With Ecto (DB)
+### Ecto Preload Association
 
-Set the default `repo` in your config file:
-
-```elixir
-# config/config.exs
-config :batch_loader, :default_repo, MyApp.Repo
-```
-
-Now you can resolve Ecto associations with:
+You can use `preload_assoc` to preload Ecto associations in the existing schema:
 
 ```elixir
-field :user, :user_type, resolve: BatchLoader.Absinthe.resolve_assoc(:user)
-```
+import BatchLoader.Absinthe, only: [preload_assoc: 3]
 
-To preload Ecto associations:
-
-```elixir
 field :title, :string do
   resolve(fn post, _, _ ->
-    BatchLoader.Absinthe.preload_assoc(post, :user, fn post_with_user ->
+    preload_assoc(post, :user, fn post_with_user ->
       {:ok, "#{post_with_user.title} - #{post_with_user.user.name}"}
+    end)
+  end)
+end
+```
+
+### DIY Batching
+
+You can also use `BatchLoader` to batch in the `resolve` function manually, for example, to fix N+1 HTTP requests:
+
+```elixir
+field :user, :user_type do
+  resolve(fn post, _, _ ->
+    BatchLoader.Absinthe.for(post.user_id, &resolved_users_by_user_ids/1)
+  end)
+end
+
+def resolved_users_by_user_ids(user_ids) do
+  MyApp.HttpClient.users(user_ids)                   # load all users at once
+  |> Enum.map(fn user -> {user.id, {:ok, user}} end) # return "{user.id, result}" tuples
+end
+```
+
+Alternatively, you can simply inline the batch function:
+
+```elixir
+field :user, :user_type do
+  resolve(fn post, _, _ ->
+    BatchLoader.Absinthe.for(post.user_id, fn user_ids ->
+      MyApp.HttpClient.users(user_ids)
+      |> Enum.map(fn user -> {user.id, {:ok, user}} end)
     end)
   end)
 end
@@ -146,14 +152,14 @@ end)
 
 ```elixir
 BatchLoader.Absinthe.resolve_assoc(:user, repo: AnotherRepo)
-BatchLoader.Absinthe.preload_assoc(post, :user, fn post_with_user -> _ end, repo: AnotherRepo)
+BatchLoader.Absinthe.preload_assoc(post, :user, &callback/1, repo: AnotherRepo)
 ```
 
 * To pass custom options to `Ecto.Repo.preload`:
 
 ```elixir
 BatchLoader.Absinthe.resolve_assoc(:user, preload_opts: [prefix: nil])
-BatchLoader.Absinthe.preload_assoc(post, :user, fn post_with_user -> _ end, preload_opts: [prefix: nil])
+BatchLoader.Absinthe.preload_assoc(post, :user, &callback/1, preload_opts: [prefix: nil])
 ```
 
 ## Installation
