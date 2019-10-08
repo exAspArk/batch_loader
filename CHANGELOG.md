@@ -7,9 +7,13 @@ one of the following labels: `Added`, `Changed`, `Deprecated`,
 `Removed`, `Fixed`, `Security`. We also use [Semantic Versioning](http://semver.org)
 to manage the versions of this gem so that you can set version constraints properly.
 
-#### [Unreleased](https://github.com/exAspArk/batch_loader/compare/v0.1.0-beta.2...HEAD)
+#### [Unreleased](https://github.com/exAspArk/batch_loader/compare/v0.1.0-beta.3...HEAD)
 
 * WIP
+
+#### [v0.1.0-beta.3](https://github.com/exAspArk/batch_loader/compare/v0.1.0-beta.2...v0.1.0-beta.3) – 2019-10-07
+
+* `Added`: support for `absinthe` dependency version `~> 1.4.0`.
 
 #### [v0.1.0-beta.2](https://github.com/exAspArk/batch_loader/compare/v0.1.0-beta.1...v0.1.0-beta.2) – 2019-10-07
 
