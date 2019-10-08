@@ -8,7 +8,7 @@ defmodule BatchLoaderTest do
       result = BatchLoader.cache_key(batch_loader)
 
       assert result ==
-               "Elixir.BatchLoaderTest--test cache_key/1 generates a cache key based on the batch function/1-fun-0-"
+               "Elixir.BatchLoaderTest--test cache_key/1 generates a cache key based on the batch function/1-fun-0--[]"
     end
   end
 end
