@@ -1,5 +1,9 @@
 # BatchLoader
 
+[![Build Status](https://img.shields.io/travis/exAspArk/batch_loader.svg)](https://travis-ci.org/exAspArk/batch_loader)
+[![Coverage Status](https://coveralls.io/repos/github/exAspArk/batch_loader/badge.svg)](https://coveralls.io/github/exAspArk/batch_loader)
+[![Latest Version](https://img.shields.io/hexpm/v/batch_loader.svg)](https://hex.pm/packages/batch_loader)
+
 This package provides a generic lazy batching mechanism to avoid N+1 DB queries, HTTP queries, etc.
 
 ## Contents
@@ -16,9 +20,10 @@ This package provides a generic lazy batching mechanism to avoid N+1 DB queries,
 ## Highlights
 
 * Generic utility to avoid N+1 DB queries, HTTP requests, etc.
-* Adapted Elixir implementation of battle-tested tools like [Haskell Haxl](https://github.com/facebook/Haxl), [JS DataLoader](https://github.com/graphql/dataloader), [Ruby BatchLoader](https://github.com/exaspark/batch-loader), etc.
-* Allows inlining the code without forcing to define extra named functions (unlike [Absinthe Batch](https://hexdocs.pm/absinthe/Absinthe.Middleware.Batch.html)).
-* Allows using batching with any data sources, not just `Ecto` (unlike [Absinthe DataLoader](https://hexdocs.pm/dataloader/Dataloader.html)).
+* Adapted Elixir implementation of the battle-tested tools like [Haskell Haxl](https://github.com/facebook/Haxl), [JS DataLoader](https://github.com/graphql/dataloader), [Ruby BatchLoader](https://github.com/exaspark/batch-loader).
+* Convenient and flexible integration with Ecto Schemas.
+* Allows inlining the code without defining extra named functions, unlike [Absinthe Batch](https://hexdocs.pm/absinthe/Absinthe.Middleware.Batch.html).
+* Allows using batching with any data sources, not just DB, unlike [Absinthe DataLoader](https://hexdocs.pm/dataloader/Dataloader.html).
 
 ## Usage
 
