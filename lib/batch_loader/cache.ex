@@ -28,6 +28,9 @@ defmodule BatchLoader.Cache do
   end
 
   def value(cache, batch_loader) do
-    cache.value_by_item[batch_loader.item] || batch_loader.opts[:default_value]
+    case batch_loader.opts[:callback] do
+      nil -> cache.value_by_item[batch_loader.item] || batch_loader.opts[:default_value]
+      callback -> callback.(cache.value_by_item[batch_loader.item])
+    end
   end
 end

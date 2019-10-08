@@ -50,7 +50,8 @@ defmodule BatchLoader.MixProject do
   defp docs_config do
     [
       extras: [
-        {"README.md", [title: "Overview"]}
+        {"README.md", [title: "Overview"]},
+        {"CHANGELOG.md", [title: "Changelog"]}
       ],
       main: "readme"
     ]

@@ -81,5 +81,15 @@ defmodule BatchLoader.CacheTest do
 
       assert result == 2
     end
+
+    test "runs a callback if it exists by using the batched value" do
+      callback = fn i -> i + i end
+      batch_loader = %BatchLoader{item: 1, batch: fn -> nil end, opts: [callback: callback]}
+      cache = %Cache{value_by_item: %{1 => 2}, batch: batch_loader.batch}
+
+      result = Cache.value(cache, batch_loader)
+
+      assert result == 4
+    end
   end
 end
