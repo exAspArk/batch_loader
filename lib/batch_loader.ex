@@ -7,7 +7,7 @@ defmodule BatchLoader do
   defstruct [:item, :batch, opts: [default_value: nil, callback: nil]]
 
   def cache_key(batch_loader) do
-    function_info = Function.info(batch_loader.batch)
-    "#{function_info[:module]}-#{function_info[:name]}"
+    info = Function.info(batch_loader.batch)
+    "#{info[:module]}-#{info[:name]}-#{inspect(info[:env])}"
   end
 end
