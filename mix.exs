@@ -1,7 +1,7 @@
 defmodule BatchLoader.MixProject do
   use Mix.Project
 
-  @version "0.1.0-beta.4"
+  @version "0.1.0-beta.5"
 
   def project do
     [

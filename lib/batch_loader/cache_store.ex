@@ -29,7 +29,7 @@ defmodule BatchLoader.CacheStore do
     Map.put(store, BatchLoader, batches)
   end
 
-  def upbatched_caches(store) do
+  def unbatched_caches(store) do
     store
     |> batch_loader_store()
     |> Enum.filter(fn {_cache_key, cache} -> !Cache.batched?(cache) end)

@@ -174,7 +174,7 @@ Add `batch_loader` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:batch_loader, "~> 0.1.0-beta.4"}
+    {:batch_loader, "~> 0.1.0-beta.5"}
   ]
 end
 ```

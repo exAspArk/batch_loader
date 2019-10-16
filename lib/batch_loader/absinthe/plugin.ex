@@ -16,7 +16,7 @@ defmodule BatchLoader.Absinthe.Plugin do
   def after_resolution(res) do
     batched_caches =
       res.acc
-      |> CacheStore.upbatched_caches()
+      |> CacheStore.unbatched_caches()
       |> Enum.map(fn cache -> Cache.batch(cache) end)
 
     new_acc = CacheStore.replace_caches(res.acc, batched_caches)

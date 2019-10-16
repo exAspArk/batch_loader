@@ -7,9 +7,13 @@ one of the following labels: `Added`, `Changed`, `Deprecated`,
 `Removed`, `Fixed`, `Security`. We also use [Semantic Versioning](http://semver.org)
 to manage the versions of this gem so that you can set version constraints properly.
 
-#### [Unreleased](https://github.com/exAspArk/batch_loader/compare/v0.1.0-beta.4...HEAD)
+#### [Unreleased](https://github.com/exAspArk/batch_loader/compare/v0.1.0-beta.5...HEAD)
 
 * WIP
+
+#### [v0.1.0-beta.5](https://github.com/exAspArk/batch_loader/compare/v0.1.0-beta.4...v0.1.0-beta.5) – 2019-10-16
+
+* `Fixed`: preloading associations for a list with different Ecto Schemas.
 
 #### [v0.1.0-beta.4](https://github.com/exAspArk/batch_loader/compare/v0.1.0-beta.3...v0.1.0-beta.4) – 2019-10-08
 

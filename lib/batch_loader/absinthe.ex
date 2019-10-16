@@ -36,10 +36,9 @@ defmodule BatchLoader.Absinthe do
   """
   def resolve_assoc(assoc, options \\ @default_opts_resolve_assoc) do
     opts = Keyword.merge(@default_opts_resolve_assoc, options)
-    repo = opts[:repo] || default_repo()
 
     batch = fn objects ->
-      preloaded_objects = repo.preload(objects, assoc, opts[:preload_opts])
+      preloaded_objects = preload(objects, assoc, opts)
 
       objects
       |> Enum.with_index()
@@ -74,10 +73,8 @@ defmodule BatchLoader.Absinthe do
       |> Keyword.merge(options)
       |> Keyword.merge(callback: callback)
 
-    repo = opts[:repo] || default_repo()
-
     batch = fn objects ->
-      preloaded_objects = repo.preload(objects, assoc, opts[:preload_opts])
+      preloaded_objects = preload(objects, assoc, opts)
 
       objects
       |> Enum.with_index()
@@ -89,6 +86,17 @@ defmodule BatchLoader.Absinthe do
 
     batch_loader = %BatchLoader{item: item, batch: batch, opts: opts}
     {:middleware, BatchLoader.Absinthe.Middleware, batch_loader}
+  end
+
+  defp preload(objects, assoc, opts) do
+    repo = opts[:repo] || default_repo()
+
+    objects
+    |> Enum.group_by(&Map.get(&1, :__struct__))
+    |> Map.values()
+    |> Enum.flat_map(fn homogeneous_items ->
+      repo.preload(homogeneous_items, assoc, opts[:preload_opts])
+    end)
   end
 
   defp default_repo, do: Application.get_env(:batch_loader, :default_repo)
