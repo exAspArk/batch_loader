@@ -41,13 +41,29 @@ defmodule BatchLoader.AbsintheTest do
       preloaded_assoc = %{object: :bar}
 
       resolve = BatchLoader.Absinthe.resolve_assoc(:assoc, repo: DummyRepo)
-      result = resolve.(object, nil, nil)
 
-      {:middleware, BatchLoader.Absinthe.Middleware, batch_loader} = result
+      middleware = resolve.(object, nil, nil)
+      {:middleware, BatchLoader.Absinthe.Middleware, batch_loader} = middleware
       assert batch_loader.item == object
       assert batch_loader.opts == [default_value: {:ok, nil}, preload_opts: [], repo: DummyRepo]
       assert batch_loader.batch
       assert batch_loader.batch.([object]) == [{object, {:ok, preloaded_assoc}}]
+    end
+
+    test "returns a resolve function with a middleware with a batch function which preload assocs" do
+      object1 = %{__struct__: :foo1, object: :foo1, assoc: nil}
+      object2 = %{__struct__: :foo2, object: :foo2, assoc: nil}
+      preloaded_assoc = %{object: :bar}
+
+      resolve = BatchLoader.Absinthe.resolve_assoc(:assoc, repo: DummyRepo)
+
+      middleware = resolve.(object1, nil, nil)
+      {:middleware, BatchLoader.Absinthe.Middleware, batch_loader} = middleware
+
+      assert batch_loader.batch.([object1, object2]) == [
+               {object1, {:ok, preloaded_assoc}},
+               {object2, {:ok, preloaded_assoc}}
+             ]
     end
   end
 
