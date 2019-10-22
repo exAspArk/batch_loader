@@ -11,6 +11,7 @@ This package provides a generic lazy batching mechanism to avoid N+1 DB queries,
 * [Highlights](#highlights)
 * [Usage](#usage)
   * [Ecto Resolve Association](#ecto-resolve-association)
+  * [Ecto Load Association](#ecto-load-association)
   * [Ecto Preload Association](#ecto-preload-association)
   * [DIY Batching](#diy-batching)
   * [Customization](#customization)
@@ -88,6 +89,22 @@ defmodule MyApp.Schema do
   def plugins do
     [BatchLoader.Absinthe.Plugin] ++ Absinthe.Plugin.defaults()
   end
+end
+```
+
+### Ecto Load Association
+
+You can use `load_assoc` to load Ecto associations in the existing schema:
+
+```elixir
+import BatchLoader.Absinthe, only: [load_assoc: 3]
+
+field :author, :string do
+  resolve(fn post, _, _ ->
+    load_assoc(post, :user, fn user ->
+      {:ok, user.name}
+    end)
+  end)
 end
 ```
 
@@ -174,7 +191,7 @@ Add `batch_loader` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:batch_loader, "~> 0.1.0-beta.5"}
+    {:batch_loader, "~> 0.1.0-beta.6"}
   ]
 end
 ```

@@ -88,4 +88,26 @@ defmodule BatchLoader.AbsintheTest do
              ]
     end
   end
+
+  describe "loaded_assoc/2" do
+    test "returns a middleware with BatchLoader" do
+      object = %{object: :foo, assoc: nil}
+      loaded_object = %{object: :bar}
+      callback = fn loaded_obj -> loaded_obj end
+
+      result = BatchLoader.Absinthe.load_assoc(object, :assoc, callback, repo: DummyRepo)
+
+      {:middleware, BatchLoader.Absinthe.Middleware, batch_loader} = result
+      assert batch_loader.item == object
+      assert batch_loader.batch
+      assert batch_loader.batch.([object]) == [{object, loaded_object}]
+
+      assert batch_loader.opts == [
+               default_value: {:ok, nil},
+               preload_opts: [],
+               repo: DummyRepo,
+               callback: callback
+             ]
+    end
+  end
 end

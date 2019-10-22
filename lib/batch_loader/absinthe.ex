@@ -37,19 +37,18 @@ defmodule BatchLoader.Absinthe do
   def resolve_assoc(assoc, options \\ @default_opts_resolve_assoc) do
     opts = Keyword.merge(@default_opts_resolve_assoc, options)
 
-    batch = fn objects ->
-      preloaded_objects = preload(objects, assoc, opts)
+    batch = fn items ->
+      preloaded_item_by_item = preloaded_item_by_item(items, assoc, opts)
 
-      objects
-      |> Enum.with_index()
-      |> Enum.map(fn {obj, index} ->
-        preloaded_obj = Enum.at(preloaded_objects, index)
-        {obj, {:ok, Map.get(preloaded_obj, assoc)}}
+      items
+      |> Enum.map(fn item ->
+        preloaded_item = preloaded_item_by_item[item]
+        {item, {:ok, Map.get(preloaded_item, assoc)}}
       end)
     end
 
-    fn object, _args, _resolution ->
-      batch_loader = %BatchLoader{item: object, batch: batch, opts: opts}
+    fn item, _args, _resolution ->
+      batch_loader = %BatchLoader{item: item, batch: batch, opts: opts}
       {:middleware, BatchLoader.Absinthe.Middleware, batch_loader}
     end
   end
@@ -73,14 +72,13 @@ defmodule BatchLoader.Absinthe do
       |> Keyword.merge(options)
       |> Keyword.merge(callback: callback)
 
-    batch = fn objects ->
-      preloaded_objects = preload(objects, assoc, opts)
+    batch = fn items ->
+      preloaded_item_by_item = preloaded_item_by_item(items, assoc, opts)
 
-      objects
-      |> Enum.with_index()
-      |> Enum.map(fn {obj, index} ->
-        preloaded_obj = Enum.at(preloaded_objects, index)
-        {obj, preloaded_obj}
+      items
+      |> Enum.map(fn item ->
+        preloaded_item = preloaded_item_by_item[item]
+        {item, preloaded_item}
       end)
     end
 
@@ -88,15 +86,56 @@ defmodule BatchLoader.Absinthe do
     {:middleware, BatchLoader.Absinthe.Middleware, batch_loader}
   end
 
-  defp preload(objects, assoc, opts) do
+  @doc """
+  Creates a BatchLoader struct and calls the BatchLoader.Absinthe.Middleware, which will load an Ecto association.
+
+  ## Example
+
+      field :author, :string do
+        resolve(fn post, _, _ ->
+          BatchLoader.Absinthe.load_assoc(post, :user, fn user ->
+            {:ok, user.name}
+          end)
+        end)
+      end
+  """
+  def load_assoc(item, assoc, callback, options \\ @default_opts_resolve_assoc) do
+    opts =
+      @default_opts_resolve_assoc
+      |> Keyword.merge(options)
+      |> Keyword.merge(callback: callback)
+
+    batch = fn items ->
+      preloaded_item_by_item = preloaded_item_by_item(items, assoc, opts)
+
+      items
+      |> Enum.map(fn item ->
+        preloaded_item = preloaded_item_by_item[item]
+        {item, Map.get(preloaded_item, assoc)}
+      end)
+    end
+
+    batch_loader = %BatchLoader{item: item, batch: batch, opts: opts}
+    {:middleware, BatchLoader.Absinthe.Middleware, batch_loader}
+  end
+
+  defp preloaded_item_by_item(items, assoc, opts) do
     repo = opts[:repo] || default_repo()
 
-    objects
+    items
     |> Enum.group_by(&Map.get(&1, :__struct__))
     |> Map.values()
     |> Enum.flat_map(fn homogeneous_items ->
-      repo.preload(homogeneous_items, assoc, opts[:preload_opts])
+      preloaded_items = repo.preload(homogeneous_items, assoc, opts[:preload_opts])
+
+      homogeneous_items
+      |> Enum.with_index()
+      |> Enum.map(fn {item, index} ->
+        preloaded_item = Enum.at(preloaded_items, index)
+        {item, preloaded_item}
+      end)
     end)
+    |> Map.new()
   end
 
   defp default_repo, do: Application.get_env(:batch_loader, :default_repo)
